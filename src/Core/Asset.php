@@ -3,6 +3,7 @@
 namespace Northrook\Symfony\Assets\Core;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use JetBrains\PhpStorm\Pure;
 use Northrook\Elements\Element;
 use Northrook\Logger\Log;
 use Northrook\Support\Get;
@@ -19,14 +20,11 @@ use Symfony\Component\Uid\Uuid;
  *
  * The public directory will always be the same, eg "public/assets/...".
  *
- * @property Filesystem $filesystem
  */
 abstract class Asset implements Stringable
 {
 
     public static bool $cacheBuster = false;
-
-    private readonly Filesystem $fs;
 
     protected readonly ID     $id;
     protected readonly Path   $source;
@@ -66,9 +64,6 @@ abstract class Asset implements Stringable
 
     abstract function build() : void;
 
-    protected function getFilesystem() : Filesystem {
-        return $this->fs ??= new Filesystem();
-    }
     protected function asUrl( Path | string $path ) : string {
         $path = str_replace( '\\', '/', $path );
         return substr( $path, strrpos( $path, 'public/assets/' ) + 7 );
