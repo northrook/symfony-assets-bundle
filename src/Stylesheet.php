@@ -11,9 +11,9 @@ use Symfony\Component\Filesystem\Exception\IOException;
 
 class Stylesheet extends Asset
 {
-    public readonly Path   $source;
-    public readonly Path   $path;
-    public readonly string $name;
+    public readonly Path    $source;
+    public readonly Path    $path;
+    public readonly string  $name;
     public readonly ?string $value;
 
     public function __construct(
@@ -29,7 +29,7 @@ class Stylesheet extends Asset
             return;
         }
 
-        if ( ! $this->source->exists ) {
+        if ( !$this->source->exists ) {
             Log::Error(
                 message : "Stylesheet source does not exist: {source}.",
                 context : [ 'source' => $this->source ],
@@ -38,13 +38,14 @@ class Stylesheet extends Asset
             return;
         }
 
-        if ( ! $this->path->exists || (
-            filemtime( $this->path->value ) < filemtime( $this->source->value )
-            )) {
+        if ( !$this->path->exists || (
+                filemtime( $this->path->value ) < filemtime( $this->source->value )
+            ) ) {
             try {
-            $this->filesystem()->copy( $this->source->value, $this->path->value );
-            $this->value = $this->path->value;
-            } catch ( IOException $e ) {
+                $this->filesystem()->copy( $this->source->value, $this->path->value );
+                $this->value = $this->path->value;
+            }
+            catch ( IOException $e ) {
                 Log::Error(
                     message : "Failed to copy stylesheet source to path: {path}.",
                     context : [ 'path' => $this->path ],
