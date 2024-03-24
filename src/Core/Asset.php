@@ -52,6 +52,7 @@ abstract class Asset implements Stringable
             return;
         }
 
+        $this->build();
     }
 
     public function __get( string $name ) {
