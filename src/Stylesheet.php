@@ -2,60 +2,35 @@
 
 namespace Northrook\Symfony\Assets;
 
-use Northrook\Elements\Link;
-use Northrook\Logger\Log;
-use Northrook\Support\Arr;
 use Northrook\Support\Str;
-use Northrook\Types\Path;
-use Symfony\Component\Filesystem\Exception\IOException;
+use Northrook\Symfony\Core\File;
 
-class Stylesheet extends Asset
+class Stylesheet extends Core\Asset
 {
-    public readonly Path    $source;
-    public readonly Path    $path;
-    public readonly string  $name;
-    public readonly ?string $value;
+    public readonly string $path;
 
-    public function __construct(
-        Path | string $source,
-        ?string       $name = null,
-    ) {
-        $this->source = $source instanceof Path ? $source : new Path( $source );
-        $this->path   = $this->pathfinder()->get( "dir.public.assets/stylesheets/{$this->source->filename}" );
-        $this->name   = Str::key( $name ?? $this->source->filename );
+    function build() : void {
 
-        if ( $this->path->exists ) {
-            $this->value = $this->path->value;
-            return;
+        $rootDir = File::pathfinder()->getParameter( 'dir.root' );
+        $asset   = 'dir.public.assets/styles/';
+
+        if ( Str::startsWith( $this->source->value, $rootDir ) ) {
+            $bundle = substr( $this->source->value, strlen( $rootDir ) );
+
+            $bundle = Str::between( $bundle, '\\', 3, 2 );
+            $bundle = trim( str_replace( [ 'symfony', 'bundle' ], '', $bundle ), '-' );
+
+            $asset .= "$bundle/";
         }
 
-        if ( !$this->source->exists ) {
-            Log::Error(
-                message : "Stylesheet source does not exist: {source}.",
-                context : [ 'source' => $this->source ],
-            );
-            $this->value = null;
-            return;
-        }
+        $this->path = File::path( "$asset{$this->source->filename}.css" );
 
-        if ( !$this->path->exists || (
-                filemtime( $this->path->value ) < filemtime( $this->source->value )
-            ) ) {
-            try {
-                $this->filesystem()->copy( $this->source->value, $this->path->value );
-                $this->value = $this->path->value;
-            }
-            catch ( IOException $e ) {
-                Log::Error(
-                    message : "Failed to copy stylesheet source to path: {path}.",
-                    context : [ 'path' => $this->path ],
-                );
-                $this->value = null;
-            }
-        }
+        File::copy( $this->source->value, $this->path, static::$cacheBuster );
+
     }
 
-    public function print() : string {
-        return '';
+    public function __toString() {
+        $version = $this::$cacheBuster ? time() : filemtime( $this->path );
+        return $this->asUrl( $this->path ) . '?v=' . $version;
     }
 }

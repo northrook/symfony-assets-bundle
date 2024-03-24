@@ -67,7 +67,7 @@ abstract class Asset implements Stringable
 
     protected function asUrl( Path | string $path ) : string {
         $path = str_replace( '\\', '/', $path );
-        return substr( $path, strrpos( $path, 'public/assets/' ) + 7 );
+        return substr( $path, strrpos( $path, 'public/assets/' ) + 6 );
     }
 
 

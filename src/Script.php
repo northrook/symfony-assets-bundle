@@ -2,40 +2,35 @@
 
 namespace Northrook\Symfony\Assets;
 
-use Northrook\Logger\Log;
-use Northrook\Symfony\Assets\Core\SingleFileTrait;
+use Northrook\Support\Str;
 use Northrook\Symfony\Core\File;
-use Northrook\Types\Path;
-use Symfony\Component\Filesystem\Exception\IOException;
 
 class Script extends Core\Asset
 {
-    public readonly Path $path;
+    public readonly string $path;
 
     function build() : void {
 
-        // add in vendor name if it exists
-        $asset = $this->source->filename;
+        $rootDir = File::pathfinder()->getParameter( 'dir.root' );
+        $asset   = 'dir.public.assets/scripts/';
 
-        $rootDir = File::pathfinder()->getParameter('dir.root');
+        if ( Str::startsWith( $this->source->value, $rootDir ) ) {
+            $bundle = substr( $this->source->value, strlen( $rootDir ) );
 
+            $bundle = Str::between( $bundle, '\\', 3, 2 );
+            $bundle = trim( str_replace( [ 'symfony', 'bundle' ], '', $bundle ), '-' );
 
-        $this->path = File::path(
-            "dir.public.assets/scripts/$asset.js",
-        );
+            $asset .= "$bundle/";
+        }
 
-        File::copy( $this->source->value, $this->path->value, static::$cacheBuster );
+        $this->path = File::path( "$asset{$this->source->filename}.js" );
 
-        dd(
-            $this,
-            $this->source->value,
-            $rootDir,
-            $this->path
-        );
+        File::copy( $this->source->value, $this->path, static::$cacheBuster );
+
     }
 
     public function __toString() {
-        $version = $this::$cacheBuster ? time() : filemtime( $this->path->value );
+        $version = $this::$cacheBuster ? time() : filemtime( $this->path );
         return $this->asUrl( $this->path ) . '?v=' . $version;
     }
 }
