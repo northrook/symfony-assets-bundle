@@ -8,4 +8,11 @@ class Image extends Core\Asset
 {
     // protected Element $value;
 
+    function build() : void {
+        // TODO: Implement build() method.
+    }
+
+    public function __toString() {
+        // TODO: Implement __toString() method.
+    }
 }
