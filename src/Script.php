@@ -2,35 +2,14 @@
 
 namespace Northrook\Symfony\Assets;
 
-use Northrook\Support\Str;
-use Northrook\Symfony\Core\File;
-
-class Script extends Core\Asset
+class Script extends Core\AbstractAsset
 {
+    protected ?string $directory = 'scripts';
+
     public readonly string $path;
 
-    function build() : void {
-
-        $rootDir = File::pathfinder()->getParameter( 'dir.root' );
-        $asset   = 'dir.public.assets/scripts/';
-
-        if ( Str::startsWith( $this->source->value, $rootDir ) ) {
-            $bundle = substr( $this->source->value, strlen( $rootDir ) );
-
-            $bundle = Str::between( $bundle, '\\', 3, 2 );
-            $bundle = trim( str_replace( [ 'symfony', 'bundle' ], '', $bundle ), '-' );
-
-            $asset .= "$bundle/";
-        }
-
-        $this->path = File::path( "$asset{$this->source->filename}.js" );
-
-        File::copy( $this->source->value, $this->path, static::$cacheBuster );
-
-    }
-
-    public function __toString() {
-        $version = $this::$cacheBuster ? time() : filemtime( $this->path );
-        return $this->asUrl( $this->path ) . '?v=' . $version;
+    public function __toString() : string {
+        $this->path = $this->publicAsset();
+        return $this->asUrl( $this->path ) . '?v=' . $this->version( $this->path );
     }
 }
