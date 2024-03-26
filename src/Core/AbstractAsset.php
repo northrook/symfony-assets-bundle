@@ -26,16 +26,19 @@ abstract class AbstractAsset implements Stringable, Asset
     protected readonly ID     $id;
     protected readonly Path   $source;
     protected readonly string $name;
+    protected ?string $directory = null;
 
     public function __construct(
         Path | string     $source,
         ?string           $name = null,
         ?id               $id = null,
-        protected ?string $directory = null,
+        ?string           $directory = null,
     ) {
         $this->source = $source instanceof Path ? $source : File::path( $source );
         $this->name   = Str::key( $name ?? $this->source->filename );
         $this->id     = new ID( $id ?? Uuid::v4() );
+        $this->directory ??= $directory;
+
 
         if ( !$this->source->exists ) {
             Log::Error(
@@ -78,7 +81,7 @@ abstract class AbstractAsset implements Stringable, Asset
             $asset[] = $bundle;
         }
 
-        $asset[] = "{$this->source->filename}.js";
+        $asset[] = $this->source->filename . '.' . $this->source->extension;
 
         $path = File::path( implode( DIRECTORY_SEPARATOR, $asset ) );
 
