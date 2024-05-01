@@ -4,6 +4,7 @@ namespace Northrook\Symfony\Assets\Core;
 
 use Northrook\Logger\Log;
 use Northrook\Support\Get;
+use Northrook\Support\Minify;
 use Northrook\Support\Str;
 use Northrook\Symfony\Core\App;
 use Northrook\Symfony\Core\File;
@@ -23,20 +24,20 @@ abstract class AbstractAsset implements Stringable, Asset
 
     public static bool $cacheBuster = false;
 
-    protected readonly ID     $id;
-    protected readonly Path   $source;
-    protected readonly string $name;
-    protected ?string $directory = null;
+    public readonly ID      $id;
+    protected readonly Path $source;
+    public readonly string  $name;
+    protected ?string       $directory = null;
 
     public function __construct(
-        Path | string     $source,
-        ?string           $name = null,
-        ?id               $id = null,
-        ?string           $directory = null,
+        Path | string $source,
+        ?string       $name = null,
+        ?id           $id = null,
+        ?string       $directory = null,
     ) {
-        $this->source = $source instanceof Path ? $source : File::path( $source );
-        $this->name   = Str::key( $name ?? $this->source->filename );
-        $this->id     = new ID( $id ?? Uuid::v4() );
+        $this->source    = $source instanceof Path ? $source : File::path( $source );
+        $this->name      = Str::key( $name ?? $this->source->filename );
+        $this->id        = new ID( $id ?? Uuid::v4() );
         $this->directory ??= $directory;
 
 
@@ -78,7 +79,9 @@ abstract class AbstractAsset implements Stringable, Asset
             $bundle = Str::between( $bundle, '\\', 3, 2 );
             $bundle = trim( str_replace( [ 'symfony', 'bundle' ], '', $bundle ), '-' );
 
-            $asset[] = $bundle;
+            if ( $bundle !== $this->directory ) {
+                $asset[] = $bundle;
+            }
         }
 
         $asset[] = $this->source->filename . '.' . $this->source->extension;
@@ -98,6 +101,6 @@ abstract class AbstractAsset implements Stringable, Asset
     }
 
     protected function version( string $path ) : string {
-        return  $this::$cacheBuster ? time() : filemtime( $path );
+        return $this::$cacheBuster ? time() : filemtime( $path );
     }
 }
