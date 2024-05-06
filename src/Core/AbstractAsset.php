@@ -94,13 +94,18 @@ abstract class AbstractAsset implements Stringable, Asset
     }
 
 
-    protected function asUrl( Path | string $path, bool $absolute = false ) : string {
+    protected function asUrl( null | Path | string $path = null, bool $absolute = false ) : string {
+        $path ??= $this->getPath();
         $path = substr( (string) $path, strlen( File::pathfinder()->getParameter( 'dir.public' ) ) );
         $path = '/' . ltrim( str_replace( '\\', '/', $path ), '/' );
         return $absolute ? App::baseUrl( $path ) : $path;
     }
 
-    protected function version( string $path ) : string {
-        return $this::$cacheBuster ? time() : filemtime( $path );
+    protected function version( ?string $path = null ) : string {
+        return $this::$cacheBuster ? time() : filemtime( $path ?? $this->getPath() );
+    }
+
+    private function getPath() : string {
+        return $this->path ??= $this->publicAsset();
     }
 }

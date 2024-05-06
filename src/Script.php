@@ -9,7 +9,9 @@ class Script extends Core\AbstractAsset
     public readonly string $path;
 
     public function __toString() : string {
-        $this->path = $this->publicAsset();
+        if ( !isset( $this->path ) ) {
+            $this->path = $this->publicAsset();
+        }
         return $this->asUrl( $this->path ) . '?v=' . $this->version( $this->path );
     }
 }

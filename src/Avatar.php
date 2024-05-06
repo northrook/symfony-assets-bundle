@@ -4,7 +4,7 @@ namespace Northrook\Symfony\Assets;
 
 use Northrook\Elements\Element;
 
-class Image extends Core\AbstractAsset
+class Avatar extends Core\AbstractAsset
 {
     // protected Element $value;
 
