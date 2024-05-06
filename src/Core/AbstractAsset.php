@@ -27,6 +27,7 @@ abstract class AbstractAsset implements Stringable, Asset
     public readonly ID      $id;
     protected readonly Path $source;
     public readonly string  $name;
+    public readonly string $path;
     protected ?string       $directory = null;
 
     public function __construct(

@@ -7,7 +7,6 @@ use Northrook\Types\Path;
 
 final class Asset extends Core\AbstractAsset
 {
-    public readonly string $path;
 
     public static function get(
         Path | string $source,
