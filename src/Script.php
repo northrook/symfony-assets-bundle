@@ -8,9 +8,6 @@ class Script extends Core\AbstractAsset
 
 
     public function __toString() : string {
-        if ( !isset( $this->path ) ) {
-            $this->path = $this->publicAsset();
-        }
-        return $this->asUrl( $this->path ) . '?v=' . $this->version( $this->path );
+        return $this->asUrl() . '?v=' . $this->version();
     }
 }
