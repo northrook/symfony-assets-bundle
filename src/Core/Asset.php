@@ -2,7 +2,7 @@
 
 namespace Northrook\Symfony\Assets\Core;
 
-interface Asset
+interface Asset extends \Stringable
 {
      public function __get( string $name );
 
