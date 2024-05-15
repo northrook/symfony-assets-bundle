@@ -2,14 +2,14 @@
 
 namespace Northrook\Symfony\Assets\Core;
 
+use Northrook\Core\Type\PathType;
 use Northrook\Logger\Log;
+use Northrook\Support\File;
 use Northrook\Support\Get;
 use Northrook\Support\Minify;
 use Northrook\Support\Str;
-use Northrook\Symfony\Core\App;
-use Northrook\Symfony\Core\File;
+use Northrook\Symfony\Core\Path;
 use Northrook\Types\ID;
-use Northrook\Types\Path;
 use Stringable;
 use Symfony\Component\Uid\Uuid;
 
@@ -25,18 +25,18 @@ abstract class AbstractAsset implements Stringable, Asset
     public static bool $cacheBuster = false;
 
     public readonly ID      $id;
-    protected readonly Path $source;
+    protected readonly PathType $source;
     public readonly string  $name;
     public readonly string $path;
     protected ?string       $directory = null;
 
     public function __construct(
-        Path | string $source,
+        PathType | string $source,
         ?string       $name = null,
         ?id           $id = null,
         ?string       $directory = null,
     ) {
-        $this->source    = $source instanceof Path ? $source : File::path( $source );
+        $this->source    = $source instanceof PathType ? $source : new PathType( Path::get($source) );
         $this->name      = Str::key( $name ?? $this->source->filename );
         $this->id        = new ID( $id ?? Uuid::v4() );
         $this->directory ??= $directory;
@@ -70,7 +70,7 @@ abstract class AbstractAsset implements Stringable, Asset
 
     protected function publicAsset() : ?string {
 
-        $rootDir = File::pathfinder()->getParameter( 'dir.root' );
+        $rootDir = Path::getParameter( 'dir.root' );
 
         $asset = [ 'dir.public.assets', $this->directory ];
 
@@ -87,7 +87,7 @@ abstract class AbstractAsset implements Stringable, Asset
 
         $asset[] = $this->source->filename . '.' . $this->source->extension;
 
-        $path = File::path( implode( DIRECTORY_SEPARATOR, $asset ) );
+        $path = Path::get( implode( DIRECTORY_SEPARATOR, $asset ) );
 
         File::copy( $this->source->value, $path, static::$cacheBuster );
 
@@ -97,7 +97,7 @@ abstract class AbstractAsset implements Stringable, Asset
 
     protected function asUrl( null | Path | string $path = null, bool $absolute = false ) : string {
         $path ??= $this->getPath();
-        $path = substr( (string) $path, strlen( File::pathfinder()->getParameter( 'dir.public' ) ) );
+        $path = substr( (string) $path, strlen( Path::getParameter( 'dir.public' ) ) );
         $path = '/' . ltrim( str_replace( '\\', '/', $path ), '/' );
         return $absolute ? App::baseUrl( $path ) : $path;
     }
