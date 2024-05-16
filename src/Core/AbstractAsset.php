@@ -8,7 +8,7 @@ use Northrook\Support\File;
 use Northrook\Support\Get;
 use Northrook\Support\Minify;
 use Northrook\Support\Str;
-use Northrook\Symfony\Core\Path;
+use Northrook\Symfony\Core\Facade\Path;
 use Northrook\Types\ID;
 use Stringable;
 use Symfony\Component\Uid\Uuid;
